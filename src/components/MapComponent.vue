@@ -2,7 +2,7 @@
   <div class="hello">
     <h1>Stolper i Norge</h1>
     <p>
-      Viser alle kommuner med arrangører som har stolper.
+      Viser alle kart/områder for alle arrangører i Norge.
     </p>
     <div id="container">
       <div id="mapContainer"></div>
@@ -41,22 +41,20 @@ export default {
 
       // console.log(organizers)
       organizers.results.forEach( (organizer) => {
-        const name = organizer.alias
-        // console.log('Parsing alias: ' + name)
-        if( organizer.kommuner.length > 0) {
-          const location = organizer.kommuner[0].location
+        organizer.areas.forEach( (area) => {
+          const name = area.name
+          const organizer  = area.organizer_name
+          const location = area.location
+          const pole_count = area.pole_count
           if (location.length === 2 ) {
             L.marker([location[1], location[0]]).addTo(mapDiv)
-                .bindPopup(name)
+                .bindPopup(organizer + '<br/>' + name + '<br/>' + pole_count + ' stolper')
           }
           else {
             console.log('No location for first municipality for alias: ' + name)
           }
-        } else {
-          console.log('Ingen kommuner for alias ' + name)
-        }
-          //.openPopup();
-      })
+        })
+        })
     },
   },
   mounted() {
