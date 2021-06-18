@@ -1,4 +1,4 @@
-# leaflet-test
+# stolper
 
 ## Project setup
 ```
@@ -22,3 +22,10 @@ npm run lint
 
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
+
+
+# Documentation
+https://blog.logrocket.com/building-an-interactive-map-with-vue-and-leaflet/
+
+https://leafletjs.com/
+https://apiv9.stolpejakten.no/organizers
