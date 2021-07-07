@@ -20,6 +20,10 @@ npm run build
 npm run lint
 ```
 
+### Run with express locally
+`npm run build && npm run start`
+
+
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
 
