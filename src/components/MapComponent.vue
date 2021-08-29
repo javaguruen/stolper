@@ -15,6 +15,7 @@
 <script>
 import "leaflet/dist/leaflet.css"
 import axios from 'axios'
+import {reactive, onBeforeMount } from 'vue'
 
 // import organizers from "./organizers.json"
 import L from "leaflet"
@@ -22,29 +23,13 @@ delete L.Icon.Default.prototype._getIconUrl;
 
 export default {
   name: "Map",
-  data() {
-    return {
+  setup () {
+    const data = reactive({
       center: [37, 7749, -122, 4194],
       organizers: []
-    }
-  },
-  methods: {
-    getOrganizers: async function () {
-      axios.get('/api/organizers')
-          .then(response => {
-            // JSON responses are automatically parsed.
-            console.log('Get organizers data ...success')
-            console.log(response.data.results)
-            this.organizers.splice(0, this.organizers.length)
-            this.organizers.push(...response.data.results)
-          }).then( () => {this.setupLeafletMap() })
-          .catch(e => {
-            console.log('Get organizers data...failed')
-            console.log(e)
-          })
-    },
+    })
 
-    setupLeafletMap: function () {
+    const setupLeafletMap = () => {
       const mapDiv = L.map("mapContainer").setView([65.4577658, 5.312518], 5);
       // const mapDiv = L.map("mapContainer").setView([65.275, 10.311], 5);
 
@@ -59,8 +44,8 @@ export default {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       }).addTo(mapDiv);
 
-      console.log("Number of organizers: " + this.organizers.length)
-      this.organizers.forEach( (organizer) => {
+      console.log("Number of organizers: " + data.organizers.length)
+      data.organizers.forEach( (organizer) => {
         organizer.areas.forEach( (area) => {
           const name = area.name
           const organizer  = area.organizer_name
@@ -75,12 +60,31 @@ export default {
           }
         })
         })
-    },
-  },
-  mounted() {
-    this.getOrganizers()
+    }
+
+    const getOrganizers = () => {
+      axios.get('/api/organizers')
+          .then(response => {
+            // JSON responses are automatically parsed.
+            console.log('Get organizers data ...success')
+            console.log(response.data.results)
+            data.organizers.splice(0, data.organizers.length)
+            data.organizers.push(...response.data.results)
+          }).then( () => { setupLeafletMap() })
+          .catch(e => {
+            console.log('Get organizers data...failed')
+            console.log(e)
+          })
+    }
+
+    onBeforeMount(() => {
+      getOrganizers()
     //this.setupLeafletMap();
-  },
+  })
+
+
+    return {data}
+  }
 };
 </script>
 
