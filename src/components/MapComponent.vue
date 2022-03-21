@@ -45,8 +45,12 @@ export default {
       }).addTo(mapDiv);
 
       console.log("Number of organizers: " + data.organizers.length)
+      const now = new Date()
+
       data.organizers.forEach( (organizer) => {
-        organizer.areas.forEach( (area) => {
+        organizer.areas
+        .filter( (area) => Date.parse(area.available_from) <= now  && now <= Date.parse(area.available_to)  )
+        .forEach( (area) => {
           const name = area.name
           const organizer  = area.organizer_name
           const location = area.location
@@ -69,6 +73,7 @@ export default {
             console.log('Get organizers data ...success')
             console.log(response.data.results)
             data.organizers.splice(0, data.organizers.length)
+            //const availableAreas = 
             data.organizers.push(...response.data.results)
           }).then( () => { setupLeafletMap() })
           .catch(e => {
