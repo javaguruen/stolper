@@ -5,7 +5,8 @@
       Viser alle kart/områder for alle arrangører i Norge.
     </p>
     <p>Data fra <a href="https://www.openstreetmap.org" target="_blank">OpenStreetMap</a> og
-    <a href="https://stolpejakten.no" target="_blank">Stolpejakten.no</a>.</p>
+      <a href="https://stolpejakten.no" target="_blank">Stolpejakten.no</a>.</p>
+    <button class="dot circle link icon" @click="locatorButtonPressed">Min posisjon</button>
     <div id="container">
       <div id="mapContainer"></div>
     </div>
@@ -15,23 +16,45 @@
 <script>
 import "leaflet/dist/leaflet.css"
 import axios from 'axios'
-import {reactive, onBeforeMount } from 'vue'
+import {reactive, onMounted, onBeforeMount} from 'vue'
 
-// import organizers from "./organizers.json"
+//import organizers from "./organizers.json"
 import L from "leaflet"
+
 delete L.Icon.Default.prototype._getIconUrl;
 
 export default {
   name: "Map",
-  setup () {
+  setup() {
     const data = reactive({
       center: [37, 7749, -122, 4194],
       organizers: []
     })
 
+    const locatorButtonPressed = () => {
+      console.log("locator pressed")
+      navigator.geolocation.getCurrentPosition(
+          position => {
+            const latLngs = [position.coords.latitude, position.coords.longitude]
+            const mapDiv = document.getElementById("mapContainer").leaflet; //L.map("mapContainer")
+            L.circle(latLngs,
+                {color: 'red', fillColor: 'red', radius: 400, fillOpacity: 1.0}).addTo(mapDiv)
+                .bindPopup('Min posisjon')
+            var markerBounds = L.latLngBounds([latLngs]);
+            mapDiv.fitBounds(markerBounds);
+            mapDiv.setZoom(11)
+          },
+          error => {
+            console.log(error.message);
+          },
+      )
+    }
+
     const setupLeafletMap = () => {
+      const mapElement = document.getElementById("mapContainer");
       const mapDiv = L.map("mapContainer").setView([65.4577658, 5.312518], 5);
-      // const mapDiv = L.map("mapContainer").setView([65.275, 10.311], 5);
+      /* Make map available as custom property on element */
+      mapElement.leaflet = mapDiv
 
       L.Icon.Default.mergeOptions({
         iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
@@ -47,48 +70,61 @@ export default {
       console.log("Number of organizers: " + data.organizers.length)
       const now = new Date()
 
-      data.organizers.forEach( (organizer) => {
+      data.organizers.forEach((organizer) => {
         organizer.areas
-        .filter( (area) => Date.parse(area.available_from) <= now  && now <= Date.parse(area.available_to)  )
-        .forEach( (area) => {
-          const name = area.name
-          const organizer  = area.organizer_name
-          const location = area.location
-          const pole_count = area.pole_count
-          if (location.length === 2 ) {
-            L.marker([location[1], location[0]]).addTo(mapDiv)
-                .bindPopup(organizer + '<br/>' + name + '<br/>' + pole_count + ' stolper')
-          }
-          else {
-            console.log('No location for first municipality for alias: ' + name)
-          }
-        })
-        })
+            .filter((area) => Date.parse(area.available_from) <= now && now <= Date.parse(area.available_to))
+            .forEach((area) => {
+              const name = area.name
+              const organizer = area.organizer_name
+              const location = area.location
+              const pole_count = area.pole_count
+              if (location.length === 2) {
+                console.log([location[1], location[0]])
+                L.marker([location[1], location[0]]).addTo(mapDiv)
+                    .bindPopup(organizer + '<br/>' + name + '<br/>' + pole_count + ' stolper')
+              } else {
+                console.log('No location for first municipality for alias: ' + name)
+              }
+            })
+      })
     }
 
     const getOrganizers = () => {
+      /*
+      const o = JSON.parse(JSON.stringify(organizers)).results
+      data.organizers.splice(0, data.organizers.length)
+      data.organizers.push(...o)
+      */
+
+      //setupLeafletMap()
+
       axios.get('/api/organizers')
           .then(response => {
             // JSON responses are automatically parsed.
             console.log('Get organizers data ...success')
             console.log(response.data.results)
             data.organizers.splice(0, data.organizers.length)
-            //const availableAreas = 
+            //const availableAreas =
             data.organizers.push(...response.data.results)
           }).then( () => { setupLeafletMap() })
           .catch(e => {
             console.log('Get organizers data...failed')
             console.log(e)
           })
+
+
     }
 
     onBeforeMount(() => {
       getOrganizers()
-    //this.setupLeafletMap();
-  })
+    })
+
+    onMounted(() => {
+      //setupLeafletMap()
+    })
 
 
-    return {data}
+    return {data, locatorButtonPressed}
   }
 };
 </script>
