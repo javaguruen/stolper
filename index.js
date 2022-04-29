@@ -8,7 +8,7 @@ const router = express.Router()
 const app = express()
 router.get('/organizers', (req, res, next) => {
     console.log('called /stolpejakten')
-    axios.get('https://apiv9.stolpejakten.no/organizers')
+    axios.get('https://apiv10.stolpejakten.no/organizers')
         .then(data => {
             // console.log('success from stolpejakten: ' + JSON.stringify(data.data));
             res.json(data.data)
