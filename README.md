@@ -33,3 +33,5 @@ https://blog.logrocket.com/building-an-interactive-map-with-vue-and-leaflet/
 
 https://leafletjs.com/
 https://apiv9.stolpejakten.no/organizers
+
+# Cyclic app
