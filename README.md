@@ -32,4 +32,4 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 https://blog.logrocket.com/building-an-interactive-map-with-vue-and-leaflet/
 
 https://leafletjs.com/
-https://apiv9.stolpejakten.no/organizers
+https://apiv10.stolpejakten.no/organizers
