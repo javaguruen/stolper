@@ -71,17 +71,26 @@ export default {
       const now = new Date()
 
       data.organizers.forEach((organizer) => {
+        const fylke = organizer.fylke.name
+        const kommuner = organizer.kommuner.map( (kommune) => {
+          return {
+            id: kommune.id,
+            name: kommune.name
+          }
+        })
+        console.log(kommuner)
+
         organizer.areas
             .filter((area) => Date.parse(area.available_from) <= now && now <= Date.parse(area.available_to))
             .forEach((area) => {
+              const kommuneNavn = kommuner.filter( (k) => k.id === area.kommune)[0].name
               const name = area.name
-              const organizer = area.organizer_name
               const location = area.location
               const pole_count = area.pole_count
               if (location.length === 2) {
                 console.log([location[1], location[0]])
                 L.marker([location[1], location[0]]).addTo(mapDiv)
-                    .bindPopup(organizer + '<br/>' + name + '<br/>' + pole_count + ' stolper')
+                    .bindPopup(fylke + ', ' + kommuneNavn + '<br/>' + name + '<br/>' + pole_count + ' stolper')
               } else {
                 console.log('No location for first municipality for alias: ' + name)
               }
